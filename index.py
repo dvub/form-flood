@@ -3,6 +3,8 @@ import threading
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+
 from selenium.webdriver.common.by import By
 import random
 import string
@@ -55,7 +57,10 @@ def generate_password():
 
 
 def fill_form():
-    driver = webdriver.Firefox()
+    options = Options()
+
+    options.add_argument("-headless")
+    driver = webdriver.Firefox(options=options)
 
     target = os.getenv("TARGET")
     if not target:
@@ -64,6 +69,7 @@ def fill_form():
 
     driver.get(target)
 
+    print("Successfully opened form")
     # there are some random links on the form which are targeted by tabbing through
     # so we have to skip through those first
     driver.switch_to.active_element.send_keys(Keys.TAB)
@@ -123,17 +129,10 @@ def fill_form():
     driver.switch_to.active_element.send_keys(Keys.TAB)
     driver.switch_to.active_element.send_keys(Keys.ENTER)
 
-    sleep(2)
+    print("Completed, form, waiting to close driver.")
+    sleep(random.randint(1, 2))
     driver.close()
 
 
-for _ in range(10):
-    threads = []
-    for _ in range(5):
-        thread = threading.Thread(target=fill_form)
-        threads.append(thread)
-        thread.start()
-
-    # Wait for all threads to finish
-    for thread in threads:
-        thread.join()
+for _ in range(100):
+    fill_form()
